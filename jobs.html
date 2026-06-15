@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browse Jobs - CareerConnect</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="/" class="logo">💼 CareerConnect</a>
+    <div class="nav-links">
+        <a href="/pages/jobs.html" style="color:#fff;font-weight:600;">Browse Jobs</a>
+        <a href="/pages/login.html">Login</a>
+        <a href="/pages/register.html" class="btn-white">Register</a>
+    </div>
+</nav>
+
+<div style="max-width:1150px;margin:28px auto;padding:0 24px;">
+    <div class="page-header">
+        <h1>Browse Open Positions</h1>
+        <p>Find the right job for your skills and experience</p>
+    </div>
+
+    <div class="search-row">
+        <input type="text" id="search" placeholder="🔍  Search by title, company or skill..." oninput="filterJobs()">
+        <select id="type-filter" onchange="filterJobs()">
+            <option value="">All Job Types</option>
+            <option>Full-time</option>
+            <option>Part-time</option>
+            <option>Remote</option>
+            <option>Internship</option>
+            <option>Contract</option>
+        </select>
+    </div>
+
+    <div id="jobs-grid" class="jobs-grid">
+        <p style="color:#888;">Loading jobs...</p>
+    </div>
+</div>
+
+<!-- Job Detail Modal -->
+<div class="modal-overlay" id="job-modal">
+    <div class="modal-box">
+        <div class="modal-head">
+            <h3 id="modal-title">Job Details</h3>
+            <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <div id="modal-body"></div>
+    </div>
+</div>
+
+<script src="/js/utils.js"></script>
+<script>
+    var allJobs = [];
+
+    async function loadJobs() {
+        try {
+            allJobs = await api("/jobs");
+            renderJobs(allJobs);
+        } catch(e) {
+            document.getElementById("jobs-grid").innerHTML =
+                '<div class="alert alert-error">Could not connect to server. Please make sure the backend is running.</div>';
+        }
+    }
+
+    function renderJobs(jobs) {
+        var el = document.getElementById("jobs-grid");
+        if (!jobs.length) {
+            el.innerHTML = '<div class="empty-state"><div class="icon">💼</div><p>No jobs found.</p></div>'; return;
+        }
+        el.innerHTML = jobs.map(function(j) {
+            return '<div class="job-card" onclick="showJob(' + j.id + ')">' +
+                '<h3>' + j.title + '</h3>' +
+                '<div class="company">🏢 ' + j.company + '</div>' +
+                '<div class="meta">' +
+                    '📍 ' + (j.location||"Remote") + '&nbsp;&nbsp;' +
+                    '🕐 ' + j.job_type + '&nbsp;&nbsp;' +
+                    '📅 ' + j.experience_required + '+ yrs' +
+                    (j.salary ? '&nbsp;&nbsp;💰 ' + j.salary : '') +
+                '</div>' +
+                '<div class="tags">' + skillTags(j.skills) + '</div>' +
+                '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+                    '<small>Posted ' + fmtDate(j.created_at) + '</small>' +
+                    '<span class="badge badge-open">Open</span>' +
+                '</div>' +
+            '</div>';
+        }).join("");
+    }
+
+    function filterJobs() {
+        var q = document.getElementById("search").value.toLowerCase();
+        var t = document.getElementById("type-filter").value;
+        renderJobs(allJobs.filter(function(j) {
+            return (!q || j.title.toLowerCase().includes(q) || j.company.toLowerCase().includes(q) || (j.skills||"").toLowerCase().includes(q))
+                && (!t || j.job_type === t);
+        }));
+    }
+
+    function showJob(jid) {
+        var j = allJobs.find(function(x){ return x.id === jid; });
+        if (!j) return;
+        document.getElementById("modal-title").textContent = j.title;
+        document.getElementById("modal-body").innerHTML =
+            '<p style="color:#1a73e8;font-weight:600;font-size:15px;margin-bottom:6px;">🏢 ' + j.company + '</p>' +
+            '<p style="color:#666;font-size:13px;margin-bottom:14px;">📍 ' + (j.location||"Remote") + ' &nbsp;|&nbsp; 🕐 ' + j.job_type + ' &nbsp;|&nbsp; 📅 ' + j.experience_required + '+ yrs exp' + (j.salary ? ' &nbsp;|&nbsp; 💰 ' + j.salary : '') + '</p>' +
+            '<div style="margin-bottom:14px;"><strong style="font-size:13px;color:#444;">Required Skills</strong><div class="tags" style="margin-top:6px;">' + skillTags(j.skills) + '</div></div>' +
+            '<div style="margin-bottom:18px;"><strong style="font-size:13px;color:#444;">Job Description</strong><p style="color:#555;font-size:13px;margin-top:6px;line-height:1.7;">' + (j.description || "No description provided.") + '</p></div>' +
+            '<a href="/pages/login.html" class="btn btn-primary btn-block">Login to Apply</a>';
+        document.getElementById("job-modal").classList.add("open");
+    }
+
+    function closeModal() {
+        document.getElementById("job-modal").classList.remove("open");
+    }
+
+    loadJobs();
+</script>
+
+</body>
+</html>

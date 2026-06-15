@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - CareerConnect</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="/" class="logo">💼 CareerConnect</a>
+    <div class="nav-links">
+        <a href="/pages/jobs.html">Browse Jobs</a>
+        <a href="/pages/register.html" class="btn-white">Register</a>
+    </div>
+</nav>
+
+<div class="auth-page">
+    <div class="auth-box">
+        <a href="/" class="auth-logo">💼 CareerConnect</a>
+        <h2>Welcome Back</h2>
+        <p class="auth-desc">Sign in to your account to continue</p>
+
+        <div id="alert"></div>
+
+        <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" id="email" placeholder="Enter your email">
+        </div>
+
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="password" placeholder="Enter your password">
+        </div>
+
+        <button class="btn btn-primary btn-block" onclick="doLogin()">Sign In</button>
+
+        <div class="auth-link">
+            Don't have an account? <a href="/pages/register.html">Register here</a>
+        </div>
+    </div>
+</div>
+
+<script src="/js/utils.js"></script>
+<script>
+    async function doLogin() {
+        var email    = document.getElementById("email").value.trim();
+        var password = document.getElementById("password").value;
+        if (!email || !password) {
+            showAlert("alert", "Please enter your email and password", "error");
+            return;
+        }
+        try {
+            var user = await api("/login", "POST", { email: email, password: password });
+            saveUser(user);
+            window.location.href = user.role === "recruiter" ? "/pages/recruiter.html" : "/pages/candidate.html";
+        } catch(e) {
+            showAlert("alert", e.message, "error");
+        }
+    }
+    document.addEventListener("keydown", function(e) { if (e.key === "Enter") doLogin(); });
+</script>
+
+</body>
+</html>

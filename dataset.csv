@@ -1,0 +1,301 @@
+skills_match_score,years_of_experience,education_level,role_relevance_score,past_job_history_score,match_label
+71,14,Bachelor's,60,97,Moderate Match
+34,2,Master's,47,61,Weak Match
+91,11,PhD,73,65,Moderate Match
+80,0,PhD,47,24,Weak Match
+40,3,Master's,59,38,Weak Match
+94,14,Bachelor's,91,17,Moderate Match
+94,12,Master's,39,14,Moderate Match
+43,4,PhD,88,38,Moderate Match
+22,6,High School,60,56,Weak Match
+41,0,High School,72,77,Moderate Match
+72,2,Master's,61,85,Moderate Match
+21,1,PhD,47,54,Weak Match
+49,8,High School,97,11,Moderate Match
+57,9,PhD,88,36,Moderate Match
+21,14,Master's,39,45,Weak Match
+83,5,High School,60,45,Moderate Match
+79,9,PhD,90,35,Moderate Match
+40,2,High School,14,52,Weak Match
+52,7,Master's,38,36,Weak Match
+95,13,PhD,13,78,Moderate Match
+77,7,High School,19,29,Weak Match
+41,1,Master's,65,20,Weak Match
+68,14,High School,26,83,Moderate Match
+78,5,High School,83,47,Moderate Match
+61,6,Bachelor's,26,15,Weak Match
+79,1,Bachelor's,93,81,Moderate Match
+99,14,Master's,97,32,Strong Match
+34,10,Bachelor's,78,56,Moderate Match
+81,9,Master's,43,99,Moderate Match
+81,1,Bachelor's,15,55,Weak Match
+66,9,High School,62,21,Moderate Match
+81,0,Master's,75,99,Moderate Match
+70,7,Master's,86,22,Moderate Match
+74,0,High School,52,71,Moderate Match
+83,8,Master's,84,91,Strong Match
+22,10,Master's,32,98,Weak Match
+70,5,Bachelor's,64,69,Moderate Match
+26,6,Master's,89,52,Moderate Match
+40,12,PhD,84,85,Moderate Match
+92,9,High School,25,77,Moderate Match
+58,6,Bachelor's,17,14,Weak Match
+37,9,Bachelor's,13,46,Weak Match
+23,2,PhD,13,81,Weak Match
+79,1,High School,65,40,Moderate Match
+33,8,High School,34,18,Weak Match
+28,7,Bachelor's,76,60,Moderate Match
+72,12,Master's,76,38,Moderate Match
+21,11,Bachelor's,36,87,Weak Match
+79,9,High School,41,49,Moderate Match
+90,6,PhD,59,50,Moderate Match
+63,8,Bachelor's,70,95,Moderate Match
+27,3,High School,60,20,Weak Match
+66,12,Bachelor's,28,32,Weak Match
+54,3,Master's,30,10,Weak Match
+97,0,Bachelor's,14,55,Moderate Match
+55,7,Bachelor's,91,30,Moderate Match
+69,13,High School,51,99,Moderate Match
+23,13,High School,70,45,Weak Match
+21,11,High School,31,63,Weak Match
+25,2,Bachelor's,30,96,Weak Match
+73,6,Master's,79,66,Moderate Match
+23,14,PhD,10,10,Weak Match
+73,11,PhD,14,72,Moderate Match
+82,1,High School,21,63,Moderate Match
+37,1,High School,99,64,Moderate Match
+63,6,Bachelor's,55,49,Moderate Match
+53,14,PhD,43,24,Weak Match
+93,5,High School,58,30,Moderate Match
+81,2,Master's,87,56,Moderate Match
+33,8,Master's,99,82,Moderate Match
+67,9,High School,54,62,Moderate Match
+34,14,High School,36,18,Weak Match
+91,13,PhD,82,83,Strong Match
+97,12,PhD,35,61,Moderate Match
+81,5,Bachelor's,56,66,Moderate Match
+59,9,PhD,95,35,Moderate Match
+99,9,Master's,65,50,Moderate Match
+72,5,Master's,72,44,Moderate Match
+43,0,High School,57,72,Weak Match
+45,3,PhD,70,34,Weak Match
+79,9,Bachelor's,90,99,Strong Match
+60,5,Master's,35,84,Moderate Match
+48,14,Master's,45,47,Weak Match
+34,5,Bachelor's,10,11,Weak Match
+64,10,Bachelor's,17,16,Weak Match
+84,11,Master's,61,91,Moderate Match
+90,4,Master's,88,43,Moderate Match
+28,0,Bachelor's,56,26,Weak Match
+20,7,Master's,65,52,Weak Match
+27,4,High School,95,68,Moderate Match
+82,11,High School,23,60,Moderate Match
+30,11,Bachelor's,99,63,Moderate Match
+27,11,PhD,37,33,Weak Match
+54,4,Bachelor's,96,34,Moderate Match
+54,6,Bachelor's,87,80,Moderate Match
+52,3,PhD,97,61,Moderate Match
+24,5,PhD,11,79,Weak Match
+60,12,PhD,35,97,Moderate Match
+47,3,High School,23,42,Weak Match
+26,13,Master's,68,58,Weak Match
+92,14,High School,65,38,Moderate Match
+91,2,Master's,16,72,Moderate Match
+31,6,High School,12,31,Weak Match
+53,7,Master's,32,35,Weak Match
+52,3,High School,27,37,Weak Match
+67,12,PhD,47,94,Moderate Match
+42,1,Bachelor's,24,58,Weak Match
+81,11,High School,73,80,Moderate Match
+56,9,Master's,98,90,Moderate Match
+63,13,PhD,37,93,Moderate Match
+54,2,High School,83,58,Moderate Match
+84,0,High School,48,29,Moderate Match
+66,7,PhD,66,95,Moderate Match
+97,14,High School,26,72,Moderate Match
+22,2,Bachelor's,95,70,Moderate Match
+20,11,High School,99,58,Moderate Match
+24,9,Bachelor's,53,80,Weak Match
+33,6,Bachelor's,34,10,Weak Match
+46,9,PhD,26,22,Weak Match
+28,4,High School,22,96,Weak Match
+98,9,PhD,93,60,Strong Match
+34,4,High School,34,65,Weak Match
+61,13,High School,77,92,Moderate Match
+96,6,Master's,19,71,Moderate Match
+70,14,High School,76,41,Moderate Match
+82,8,PhD,27,39,Moderate Match
+71,11,Bachelor's,95,38,Moderate Match
+23,4,High School,43,58,Weak Match
+42,0,Master's,17,54,Weak Match
+34,9,PhD,49,39,Weak Match
+62,9,High School,92,25,Moderate Match
+48,0,PhD,51,49,Weak Match
+55,14,Master's,50,28,Weak Match
+32,1,Master's,15,27,Weak Match
+51,13,PhD,61,10,Weak Match
+90,5,High School,35,87,Moderate Match
+78,8,Bachelor's,73,56,Moderate Match
+47,7,Master's,68,75,Moderate Match
+85,12,High School,65,47,Moderate Match
+61,4,High School,68,60,Moderate Match
+64,0,Bachelor's,79,72,Moderate Match
+81,12,Master's,42,13,Moderate Match
+76,6,Master's,62,10,Moderate Match
+25,14,High School,31,17,Weak Match
+47,4,High School,30,38,Weak Match
+47,5,Bachelor's,79,64,Moderate Match
+63,12,Bachelor's,79,12,Moderate Match
+49,6,Master's,13,41,Weak Match
+81,2,PhD,84,19,Moderate Match
+94,11,Master's,71,83,Strong Match
+81,9,High School,71,92,Strong Match
+20,2,Master's,33,43,Weak Match
+46,4,PhD,64,96,Moderate Match
+81,5,Bachelor's,18,64,Moderate Match
+96,8,PhD,12,41,Moderate Match
+22,12,PhD,40,59,Weak Match
+89,13,PhD,49,16,Moderate Match
+91,11,Bachelor's,45,17,Moderate Match
+46,4,PhD,33,74,Weak Match
+28,14,PhD,15,66,Weak Match
+81,0,PhD,75,76,Moderate Match
+56,13,High School,93,97,Moderate Match
+70,13,PhD,84,96,Strong Match
+63,13,Bachelor's,13,68,Weak Match
+43,3,PhD,88,81,Moderate Match
+98,4,PhD,15,63,Moderate Match
+78,11,Bachelor's,60,76,Moderate Match
+51,9,PhD,71,60,Moderate Match
+71,9,Bachelor's,66,17,Moderate Match
+81,4,PhD,75,43,Moderate Match
+77,6,Bachelor's,88,44,Moderate Match
+71,3,PhD,84,97,Moderate Match
+31,0,PhD,17,87,Weak Match
+58,13,High School,35,41,Weak Match
+21,13,High School,60,55,Weak Match
+22,4,PhD,54,25,Weak Match
+75,6,PhD,53,77,Moderate Match
+78,9,Master's,14,46,Moderate Match
+21,9,Bachelor's,79,63,Moderate Match
+21,5,Master's,35,94,Weak Match
+73,4,High School,77,23,Moderate Match
+20,3,High School,28,64,Weak Match
+38,1,High School,93,57,Moderate Match
+21,3,High School,29,91,Weak Match
+72,14,PhD,21,16,Weak Match
+63,9,High School,56,83,Moderate Match
+51,9,PhD,10,16,Weak Match
+89,2,PhD,99,42,Moderate Match
+51,9,High School,23,32,Weak Match
+87,0,High School,73,94,Moderate Match
+74,7,Bachelor's,47,28,Moderate Match
+94,4,Master's,46,28,Moderate Match
+75,12,High School,20,45,Moderate Match
+36,3,Bachelor's,86,38,Weak Match
+57,7,Bachelor's,12,69,Weak Match
+43,6,Master's,42,91,Moderate Match
+88,1,PhD,15,11,Weak Match
+89,0,High School,59,10,Moderate Match
+30,11,Master's,19,56,Weak Match
+35,10,High School,14,78,Weak Match
+92,3,Bachelor's,32,29,Moderate Match
+78,7,Bachelor's,19,20,Weak Match
+89,11,PhD,53,11,Moderate Match
+99,1,Bachelor's,11,76,Moderate Match
+22,2,Bachelor's,22,96,Weak Match
+39,11,Master's,49,21,Weak Match
+78,0,High School,11,29,Weak Match
+55,0,High School,93,14,Moderate Match
+38,12,Master's,74,46,Moderate Match
+86,2,PhD,72,47,Moderate Match
+38,10,High School,82,18,Weak Match
+39,4,Bachelor's,26,62,Weak Match
+90,11,High School,18,53,Moderate Match
+71,2,Bachelor's,84,95,Moderate Match
+52,0,PhD,24,33,Weak Match
+59,0,Master's,33,90,Moderate Match
+58,7,High School,47,83,Moderate Match
+20,9,Master's,44,39,Weak Match
+30,10,High School,58,68,Weak Match
+76,11,Bachelor's,78,96,Strong Match
+69,12,Master's,71,90,Moderate Match
+42,12,High School,69,90,Moderate Match
+50,11,Bachelor's,59,23,Weak Match
+61,14,Master's,87,18,Moderate Match
+26,13,Master's,84,49,Moderate Match
+35,1,High School,18,75,Weak Match
+79,12,High School,43,34,Moderate Match
+21,2,High School,85,82,Moderate Match
+20,1,Bachelor's,44,31,Weak Match
+67,2,High School,10,13,Weak Match
+31,6,Master's,49,35,Weak Match
+88,0,Master's,73,67,Moderate Match
+56,9,High School,31,38,Weak Match
+51,7,High School,69,96,Moderate Match
+28,12,PhD,73,46,Weak Match
+38,9,Master's,81,84,Moderate Match
+67,9,Bachelor's,20,79,Moderate Match
+99,9,PhD,23,27,Moderate Match
+22,13,High School,69,94,Moderate Match
+39,1,High School,39,51,Weak Match
+43,2,Master's,44,50,Weak Match
+73,8,High School,94,47,Moderate Match
+52,6,Bachelor's,46,43,Weak Match
+43,3,Master's,14,26,Weak Match
+94,9,High School,92,46,Strong Match
+91,4,Master's,87,34,Moderate Match
+55,1,High School,35,85,Moderate Match
+57,12,High School,71,96,Moderate Match
+44,10,High School,13,95,Weak Match
+37,12,Bachelor's,98,94,Moderate Match
+85,7,Bachelor's,51,36,Moderate Match
+73,3,Master's,98,66,Moderate Match
+54,8,High School,27,40,Weak Match
+99,4,High School,49,15,Moderate Match
+80,12,Bachelor's,81,49,Moderate Match
+60,8,High School,48,21,Weak Match
+52,3,Bachelor's,23,62,Weak Match
+87,9,High School,41,80,Moderate Match
+52,4,Master's,60,19,Weak Match
+33,8,High School,47,54,Weak Match
+40,7,High School,32,26,Weak Match
+67,2,PhD,72,35,Moderate Match
+39,0,Bachelor's,24,94,Weak Match
+27,2,High School,34,71,Weak Match
+26,3,High School,26,55,Weak Match
+86,1,PhD,75,73,Moderate Match
+36,0,PhD,87,11,Weak Match
+52,6,Bachelor's,62,63,Moderate Match
+67,7,PhD,60,74,Moderate Match
+95,6,Master's,48,60,Moderate Match
+78,13,PhD,60,62,Moderate Match
+41,4,Master's,79,45,Moderate Match
+49,11,Bachelor's,15,35,Weak Match
+57,0,Bachelor's,76,38,Moderate Match
+70,6,Bachelor's,16,30,Weak Match
+73,12,Bachelor's,60,20,Moderate Match
+27,6,Bachelor's,81,49,Moderate Match
+46,8,Master's,51,20,Weak Match
+46,2,Master's,73,45,Moderate Match
+40,8,Bachelor's,24,68,Weak Match
+49,13,PhD,38,48,Weak Match
+47,0,High School,42,63,Weak Match
+83,0,Bachelor's,36,64,Moderate Match
+88,13,PhD,45,33,Moderate Match
+80,3,High School,38,31,Moderate Match
+67,8,Bachelor's,47,78,Moderate Match
+38,5,Bachelor's,66,65,Moderate Match
+23,12,Master's,36,42,Weak Match
+54,10,High School,64,45,Moderate Match
+83,2,High School,42,29,Moderate Match
+68,0,PhD,77,92,Moderate Match
+36,3,Master's,95,90,Moderate Match
+63,11,Master's,75,71,Moderate Match
+49,12,Master's,19,82,Weak Match
+65,8,Master's,14,35,Weak Match
+25,2,High School,83,75,Moderate Match
+56,11,High School,47,82,Moderate Match
+43,8,Bachelor's,22,82,Weak Match
+65,6,Bachelor's,40,49,Moderate Match
+72,11,Master's,56,26,Moderate Match

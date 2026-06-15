@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dashboard - CareerConnect</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .notif-bell { position:relative; cursor:pointer; margin-left:auto; padding:6px 10px; font-size:20px; }
+        .notif-badge { position:absolute; top:0; right:0; background:#e53935; color:#fff; border-radius:50%; font-size:10px; width:16px; height:16px; display:flex; align-items:center; justify-content:center; font-weight:700; }
+        .notif-panel { position:fixed; top:0; right:0; width:360px; height:100vh; background:#fff; box-shadow:-4px 0 20px rgba(0,0,0,0.15); z-index:1000; overflow-y:auto; display:none; flex-direction:column; }
+        .notif-panel.open { display:flex; }
+        .notif-header { display:flex; align-items:center; justify-content:space-between; padding:18px 20px; border-bottom:1px solid #eee; background:#f8f9fa; }
+        .notif-header h3 { margin:0; font-size:16px; }
+        .notif-item { padding:14px 20px; border-bottom:1px solid #f0f0f0; font-size:13px; line-height:1.5; }
+        .notif-item.unread { background:#e8f0fe; border-left:3px solid #1a73e8; }
+        .notif-item .notif-time { color:#aaa; font-size:11px; margin-top:4px; }
+        .resume-zone { border:2px dashed #ccc; border-radius:8px; padding:20px; text-align:center; cursor:pointer; transition:border-color .2s; margin-top:8px; }
+        .resume-zone:hover { border-color:#1a73e8; }
+        .resume-zone.has-file { border-color:#34a853; background:#f0fdf4; }
+        .sidebar-top { display:flex; align-items:center; padding:0 10px 10px; }
+    </style>
+</head>
+<body>
+
+<div class="dashboard">
+
+    <div class="sidebar">
+        <div class="sidebar-brand">💼 CareerConnect</div>
+        <div class="sidebar-user">
+            <span class="name" id="sidebar-name">Loading...</span>
+            <span class="role-label">Job Seeker</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="#" onclick="switchTab(PAGES,'jobs')" id="nav-jobs" class="active">🔍 &nbsp;Browse Jobs</a>
+            <a href="#" onclick="switchTab(PAGES,'applications')" id="nav-applications">📄 &nbsp;My Applications</a>
+            <a href="#" onclick="switchTab(PAGES,'notifications');loadNotifications()" id="nav-notifications">🔔 &nbsp;Notifications <span id="notif-count-badge" style="display:none;background:#e53935;color:#fff;border-radius:10px;font-size:11px;padding:1px 6px;margin-left:4px;"></span></a>
+            <a href="#" onclick="switchTab(PAGES,'profile')" id="nav-profile">👤 &nbsp;My Profile</a>
+        </nav>
+        <div class="sidebar-bottom">
+            <button onclick="logout()">Sign Out</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div id="top-alert"></div>
+
+        <!-- Browse Jobs -->
+        <div id="page-jobs" class="tab-content active">
+            <div class="page-header">
+                <h1>Browse Jobs</h1>
+                <p>Click on any job to view details and apply</p>
+            </div>
+            <div class="search-row">
+                <input type="text" id="search" placeholder="🔍  Search jobs..." oninput="filterJobs()">
+                <select id="type-filter" onchange="filterJobs()">
+                    <option value="">All Types</option>
+                    <option>Full-time</option>
+                    <option>Part-time</option>
+                    <option>Remote</option>
+                    <option>Internship</option>
+                    <option>Contract</option>
+                </select>
+            </div>
+            <div id="jobs-grid" class="jobs-grid">
+                <p style="color:#888;">Loading jobs...</p>
+            </div>
+        </div>
+
+        <!-- My Applications -->
+        <div id="page-applications" class="tab-content">
+            <div class="page-header">
+                <h1>My Applications</h1>
+                <p>Track the status of all your job applications</p>
+            </div>
+            <div class="card">
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Job Title</th>
+                                <th>Company</th>
+                                <th>Applied On</th>
+                                <th>Match Result</th>
+                                <th>Match Score</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="apps-table">
+                            <tr><td colspan="6" style="color:#aaa;text-align:center;padding:30px;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notifications -->
+        <div id="page-notifications" class="tab-content">
+            <div class="page-header">
+                <h1>Notifications</h1>
+                <p>Updates about your job applications</p>
+            </div>
+            <div class="card" style="max-width:680px;">
+                <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+                    <button class="btn btn-outline btn-sm" onclick="markAllRead()">Mark all as read</button>
+                </div>
+                <div id="notif-list"><p style="color:#aaa;text-align:center;padding:30px;">Loading...</p></div>
+            </div>
+        </div>
+
+        <!-- Profile -->
+        <div id="page-profile" class="tab-content">
+            <div class="page-header">
+                <h1>My Profile</h1>
+                <p>Keep your profile updated to get better job matches</p>
+            </div>
+            <div class="card" style="max-width:620px;">
+                <div id="profile-alert"></div>
+                <div class="card-title" style="margin-bottom:16px;">Basic Information</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="p-name">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="p-email" readonly style="background:#f5f5f5;cursor:not-allowed;">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" id="p-phone" placeholder="+91 98765 43210">
+                    </div>
+                    <div class="form-group">
+                        <label>LinkedIn Profile URL</label>
+                        <input type="url" id="p-linkedin" placeholder="https://linkedin.com/in/yourname">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Bio / About You</label>
+                    <textarea id="p-bio" rows="3" placeholder="Tell recruiters a little about yourself..."></textarea>
+                </div>
+
+                <div class="card-title" style="margin:20px 0 16px;">Professional Details</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Years of Experience</label>
+                        <input type="number" id="p-exp" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Highest Education</label>
+                        <select id="p-edu">
+                            <option>High School</option>
+                            <option>Bachelor's</option>
+                            <option>Master's</option>
+                            <option>PhD</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Skills <small>(comma separated)</small></label>
+                    <input type="text" id="p-skills" placeholder="Python, Java, SQL...">
+                </div>
+
+                <button class="btn btn-primary" onclick="saveProfile()">Save Changes</button>
+
+                <div class="card-title" style="margin:28px 0 12px;">Resume</div>
+                <div id="resume-zone" class="resume-zone" onclick="document.getElementById('resume-input').click()">
+                    <div id="resume-zone-text">
+                        <div style="font-size:32px;margin-bottom:8px;">📎</div>
+                        <div style="font-weight:600;margin-bottom:4px;">Upload your Resume</div>
+                        <div style="color:#888;font-size:13px;">PDF or DOC/DOCX, max 5MB — Click to browse</div>
+                    </div>
+                </div>
+                <input type="file" id="resume-input" accept=".pdf,.doc,.docx" style="display:none;" onchange="handleResumeUpload(event)">
+                <div id="resume-status" style="margin-top:10px;"></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="/js/utils.js"></script>
+<script>
+var PAGES = ["jobs","applications","notifications","profile"];
+var user = null;
+var allJobs = [];
+var appliedJobIds = new Set(); // track applied jobs in this session
+var applyJobId = null;
+
+window.onload = function() {
+    user = requireLogin("candidate");
+    if (!user) return;
+    document.getElementById("sidebar-name").textContent = user.name;
+    loadJobs();
+    loadApplications();
+    fillProfile();
+    loadResumeInfo();
+    pollNotifications();
+};
+
+// ── Notifications ──────────────────────────────────────────────────────
+function pollNotifications() {
+    checkUnreadCount();
+    setInterval(checkUnreadCount, 30000);
+}
+
+async function checkUnreadCount() {
+    try {
+        var notifs = await api("/notifications/" + user.id);
+        var unread = notifs.filter(function(n){ return !n.is_read; }).length;
+        var badge = document.getElementById("notif-count-badge");
+        if (unread > 0) {
+            badge.textContent = unread;
+            badge.style.display = "inline";
+        } else {
+            badge.style.display = "none";
+        }
+    } catch(e) {}
+}
+
+async function loadNotifications() {
+    var el = document.getElementById("notif-list");
+    try {
+        var notifs = await api("/notifications/" + user.id);
+        if (!notifs.length) {
+            el.innerHTML = '<div class="empty-state"><div class="icon">🔔</div><p>No notifications yet.</p></div>';
+            return;
+        }
+        el.innerHTML = notifs.map(function(n) {
+            return '<div class="notif-item' + (n.is_read ? '' : ' unread') + '">' +
+                '<div>' + n.message + '</div>' +
+                '<div class="notif-time">' + fmtDate(n.created_at) + '</div>' +
+            '</div>';
+        }).join("");
+        // Mark all as read after viewing
+        await api("/notifications/" + user.id + "/read", "PUT", {});
+        document.getElementById("notif-count-badge").style.display = "none";
+    } catch(e) {
+        el.innerHTML = '<p style="color:#aaa;text-align:center;padding:20px;">Could not load notifications.</p>';
+    }
+}
+
+async function markAllRead() {
+    await api("/notifications/" + user.id + "/read", "PUT", {});
+    document.getElementById("notif-count-badge").style.display = "none";
+    loadNotifications();
+}
+
+// ── Jobs ──────────────────────────────────────────────────────────────
+async function loadJobs() {
+    try {
+        allJobs = await api("/jobs");
+        // Sync applied jobs from server
+        var apps = await api("/applications/candidate/" + user.id);
+        apps.forEach(function(a){ appliedJobIds.add(a.job_id); });
+        renderJobs(allJobs);
+    } catch(e) {
+        document.getElementById("jobs-grid").innerHTML =
+            '<div class="alert alert-error">Could not load jobs. Is the server running?</div>';
+    }
+}
+
+function renderJobs(jobs) {
+    var el = document.getElementById("jobs-grid");
+    if (!jobs.length) { el.innerHTML = '<div class="empty-state"><div class="icon">💼</div><p>No jobs found.</p></div>'; return; }
+    el.innerHTML = jobs.map(function(j) {
+        var applied = appliedJobIds.has(j.id);
+        return '<div class="job-card">' +
+            '<h3>' + j.title + '</h3>' +
+            '<div class="company">🏢 ' + j.company + '</div>' +
+            '<div class="meta">' +
+                '📍 ' + (j.location||"Remote") + '&nbsp;&nbsp;' +
+                '🕐 ' + j.job_type + '&nbsp;&nbsp;' +
+                '📅 ' + j.experience_required + '+ yrs' +
+                (j.salary ? '&nbsp;&nbsp;💰 ' + j.salary : '') +
+            '</div>' +
+            '<div class="tags">' + skillTags(j.skills) + '</div>' +
+            '<div style="text-align:right;">' +
+                (applied
+                    ? '<span class="btn btn-secondary btn-sm" style="opacity:0.7;cursor:default;">✓ Applied</span>'
+                    : '<span class="btn btn-primary btn-sm" onclick="openApply(' + j.id + ')">Apply Now →</span>'
+                ) +
+            '</div>' +
+        '</div>';
+    }).join("");
+}
+
+function filterJobs() {
+    var q = document.getElementById("search").value.toLowerCase();
+    var t = document.getElementById("type-filter").value;
+    renderJobs(allJobs.filter(function(j) {
+        return (!q || j.title.toLowerCase().includes(q) || j.company.toLowerCase().includes(q) || (j.skills||"").toLowerCase().includes(q))
+            && (!t || j.job_type === t);
+    }));
+}
+
+// ── Apply Modal ─────────────────────────────────────────────────────
+var applyModal = null;
+
+function openApply(jid) {
+    if (appliedJobIds.has(jid)) { showAlert("top-alert","You already applied to this job.","error"); return; }
+    applyJobId = jid;
+    var j = allJobs.find(function(x){ return x.id === jid; });
+
+    // Create modal dynamically each time (fixes stale state bug)
+    var existing = document.getElementById("apply-modal");
+    if (existing) existing.remove();
+
+    var modal = document.createElement("div");
+    modal.className = "modal-overlay open";
+    modal.id = "apply-modal";
+    modal.innerHTML =
+        '<div class="modal-box">' +
+            '<div class="modal-head">' +
+                '<h3>Apply for: ' + j.title + '</h3>' +
+                '<button class="modal-close" onclick="closeApply()">✕</button>' +
+            '</div>' +
+            '<div style="background:#f8f9fa;border:1px solid #e0e0e0;border-radius:6px;padding:14px;margin-bottom:16px;">' +
+                '<strong>' + j.title + '</strong><br>' +
+                '<span style="color:#1a73e8;">' + j.company + '</span> &nbsp;|&nbsp; ' +
+                (j.location||"Remote") + (j.salary ? ' &nbsp;|&nbsp; ' + j.salary : '') +
+                '<div class="tags" style="margin-top:8px;">' + skillTags(j.skills) + '</div>' +
+            '</div>' +
+            '<div class="form-group">' +
+                '<label>Cover Letter <small>(optional)</small></label>' +
+                '<textarea id="cover-letter" rows="5" placeholder="Briefly introduce yourself and explain why you are a good fit..."></textarea>' +
+            '</div>' +
+            '<div id="apply-result"></div>' +
+            '<div id="apply-btns" style="display:flex;gap:10px;margin-top:12px;">' +
+                '<button class="btn btn-success" style="flex:1;" onclick="submitApply()">Submit Application</button>' +
+                '<button class="btn btn-secondary" onclick="closeApply()">Cancel</button>' +
+            '</div>' +
+        '</div>';
+    document.body.appendChild(modal);
+}
+
+function closeApply() {
+    var m = document.getElementById("apply-modal");
+    if (m) m.remove();
+    applyJobId = null;
+}
+
+async function submitApply() {
+    document.getElementById("apply-btns").innerHTML = '<p style="color:#888;">Processing your application...</p>';
+    try {
+        var res = await api("/apply", "POST", {
+            job_id: applyJobId,
+            candidate_id: user.id,
+            cover_letter: document.getElementById("cover-letter").value
+        });
+        appliedJobIds.add(applyJobId);
+        document.getElementById("apply-result").innerHTML =
+            '<div class="alert alert-success">' +
+            '<strong>Application submitted successfully!</strong><br>' +
+            'Your match result: ' + matchBadge(res.match_label) + '<br>' +
+            '<small>Compatibility Score: ' + res.match_score + '%</small>' +
+            scoreBar(res.match_score) + '</div>';
+        document.getElementById("apply-btns").innerHTML =
+            '<button class="btn btn-secondary" onclick="closeApply();switchTab(PAGES,\'applications\');loadApplications();">View My Applications</button>' +
+            '<button class="btn btn-primary" onclick="closeApply();">Browse More Jobs</button>';
+        // Refresh job cards to show "Applied" badge without reload
+        renderJobs(allJobs.filter(function(j){
+            var q = document.getElementById("search").value.toLowerCase();
+            var t = document.getElementById("type-filter").value;
+            return (!q || j.title.toLowerCase().includes(q)) && (!t || j.job_type === t);
+        }));
+        checkUnreadCount();
+    } catch(e) {
+        document.getElementById("apply-result").innerHTML = '<div class="alert alert-error">' + e.message + '</div>';
+        document.getElementById("apply-btns").innerHTML = '<button class="btn btn-secondary" onclick="closeApply()">Close</button>';
+    }
+}
+
+// ── Applications ──────────────────────────────────────────────────────
+async function loadApplications() {
+    try {
+        var apps = await api("/applications/candidate/" + user.id);
+        var tb = document.getElementById("apps-table");
+        if (!apps.length) {
+            tb.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="icon">📄</div><p>No applications yet. Start applying!</p></div></td></tr>'; return;
+        }
+        tb.innerHTML = apps.map(function(a) {
+            return '<tr>' +
+                '<td><strong>' + a.title + '</strong></td>' +
+                '<td>' + a.company + '</td>' +
+                '<td>' + fmtDate(a.applied_at) + '</td>' +
+                '<td>' + matchBadge(a.match_label) + '</td>' +
+                '<td>' + (a.match_score||0) + '%' + scoreBar(a.match_score||0) + '</td>' +
+                '<td>' + statusBadge(a.status) + '</td>' +
+            '</tr>';
+        }).join("");
+    } catch(e) { console.log(e); }
+}
+
+// ── Profile ───────────────────────────────────────────────────────────
+async function fillProfile() {
+    try {
+        var p = await api("/profile/" + user.id);
+        document.getElementById("p-name").value    = p.name || "";
+        document.getElementById("p-email").value   = p.email || "";
+        document.getElementById("p-exp").value     = p.experience || 0;
+        document.getElementById("p-skills").value  = p.skills || "";
+        document.getElementById("p-phone").value   = p.phone || "";
+        document.getElementById("p-bio").value     = p.bio || "";
+        document.getElementById("p-linkedin").value = p.linkedin || "";
+        var sel = document.getElementById("p-edu");
+        for (var i = 0; i < sel.options.length; i++) {
+            if (sel.options[i].value === p.education) { sel.selectedIndex = i; break; }
+        }
+    } catch(e) {
+        // Fallback to session user
+        document.getElementById("p-name").value   = user.name || "";
+        document.getElementById("p-email").value  = user.email || "";
+        document.getElementById("p-exp").value    = user.experience || 0;
+        document.getElementById("p-skills").value = user.skills || "";
+    }
+}
+
+async function saveProfile() {
+    try {
+        await api("/profile/" + user.id, "PUT", {
+            name:       document.getElementById("p-name").value,
+            skills:     document.getElementById("p-skills").value,
+            experience: parseInt(document.getElementById("p-exp").value) || 0,
+            education:  document.getElementById("p-edu").value,
+            phone:      document.getElementById("p-phone").value,
+            bio:        document.getElementById("p-bio").value,
+            linkedin:   document.getElementById("p-linkedin").value
+        });
+        user.name   = document.getElementById("p-name").value;
+        user.skills = document.getElementById("p-skills").value;
+        saveUser(user);
+        document.getElementById("sidebar-name").textContent = user.name;
+        showAlert("profile-alert", "Profile saved successfully! ✓", "success");
+    } catch(e) {
+        showAlert("profile-alert", e.message, "error");
+    }
+}
+
+// ── Resume ────────────────────────────────────────────────────────────
+async function loadResumeInfo() {
+    try {
+        var res = await api("/profile/" + user.id);
+        if (res.resume_name) {
+            var zone = document.getElementById("resume-zone");
+            zone.classList.add("has-file");
+            document.getElementById("resume-zone-text").innerHTML =
+                '<div style="font-size:28px;margin-bottom:6px;">✅</div>' +
+                '<div style="font-weight:600;color:#34a853;">' + res.resume_name + '</div>' +
+                '<div style="color:#888;font-size:12px;margin-top:4px;">Click to replace</div>';
+        }
+    } catch(e) {}
+}
+
+async function handleResumeUpload(event) {
+    var file = event.target.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+        document.getElementById("resume-status").innerHTML = '<div class="alert alert-error">File too large. Max 5MB allowed.</div>';
+        return;
+    }
+    document.getElementById("resume-status").innerHTML = '<p style="color:#888;">Uploading...</p>';
+    var reader = new FileReader();
+    reader.onload = async function(e) {
+        try {
+            var b64 = e.target.result.split(",")[1];
+            await api("/profile/" + user.id + "/resume", "POST", {
+                resume_name: file.name,
+                resume_data: b64
+            });
+            var zone = document.getElementById("resume-zone");
+            zone.classList.add("has-file");
+            document.getElementById("resume-zone-text").innerHTML =
+                '<div style="font-size:28px;margin-bottom:6px;">✅</div>' +
+                '<div style="font-weight:600;color:#34a853;">' + file.name + '</div>' +
+                '<div style="color:#888;font-size:12px;margin-top:4px;">Click to replace</div>';
+            document.getElementById("resume-status").innerHTML = '<div class="alert alert-success">Resume uploaded successfully!</div>';
+        } catch(err) {
+            document.getElementById("resume-status").innerHTML = '<div class="alert alert-error">' + err.message + '</div>';
+        }
+    };
+    reader.readAsDataURL(file);
+}
+</script>
+
+</body>
+</html>

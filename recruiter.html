@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recruiter Dashboard - CareerConnect</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="dashboard">
+
+    <div class="sidebar">
+        <div class="sidebar-brand">💼 CareerConnect</div>
+        <div class="sidebar-user">
+            <span class="name" id="sidebar-name">Loading...</span>
+            <span class="role-label">Recruiter</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="#" onclick="switchTab(PAGES,'overview')" id="nav-overview" class="active">📊 &nbsp;Overview</a>
+            <a href="#" onclick="switchTab(PAGES,'post-job')" id="nav-post-job">➕ &nbsp;Post a Job</a>
+            <a href="#" onclick="switchTab(PAGES,'my-jobs')" id="nav-my-jobs">📋 &nbsp;My Jobs</a>
+            <a href="#" onclick="switchTab(PAGES,'applicants')" id="nav-applicants">👥 &nbsp;Applicants</a>
+            <a href="#" onclick="switchTab(PAGES,'tools')" id="nav-tools">⚙️ &nbsp;Smart Tools</a>
+        </nav>
+        <div class="sidebar-bottom">
+            <button onclick="logout()">Sign Out</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div id="top-alert"></div>
+
+        <!-- Overview -->
+        <div id="page-overview" class="tab-content active">
+            <div class="page-header">
+                <h1>Dashboard Overview</h1>
+                <p>A summary of your current hiring activity</p>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card"><div class="num" id="s-jobs">0</div><div class="lbl">Jobs Posted</div></div>
+                <div class="stat-card"><div class="num" id="s-apps">0</div><div class="lbl">Total Applications</div></div>
+                <div class="stat-card"><div class="num" id="s-strong">0</div><div class="lbl">Top Candidates</div></div>
+                <div class="stat-card"><div class="num">97%</div><div class="lbl">Matching Accuracy</div></div>
+            </div>
+            <div class="card">
+                <div class="card-title">All Applications</div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>Candidate</th><th>Job</th><th>Compatibility</th><th>Score</th><th>Status</th><th>Update Status</th></tr>
+                        </thead>
+                        <tbody id="recent-table">
+                            <tr><td colspan="6" style="color:#aaa;text-align:center;padding:25px;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Post Job -->
+        <div id="page-post-job" class="tab-content">
+            <div class="page-header">
+                <h1>Post a New Job</h1>
+                <p>Fill in the job details below. You can auto-generate the description.</p>
+            </div>
+            <div class="card" style="max-width:720px;">
+                <div id="post-alert"></div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Job Title <span style="color:red">*</span></label>
+                        <input type="text" id="j-title" placeholder="e.g. Python Backend Developer">
+                    </div>
+                    <div class="form-group">
+                        <label>Job Type</label>
+                        <select id="j-type">
+                            <option>Full-time</option><option>Part-time</option>
+                            <option>Remote</option><option>Internship</option><option>Contract</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Location</label>
+                        <input type="text" id="j-location" placeholder="e.g. Hyderabad / Remote">
+                    </div>
+                    <div class="form-group">
+                        <label>Salary Range</label>
+                        <input type="text" id="j-salary" placeholder="e.g. 5-8 LPA">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Experience Required (years)</label>
+                        <input type="number" id="j-exp" value="1" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Required Skills</label>
+                        <input type="text" id="j-skills" placeholder="Python, SQL, Flask, React">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Job Description</label>
+                    <textarea id="j-desc" rows="8" placeholder="Describe the role, responsibilities, and requirements..."></textarea>
+                </div>
+                <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                    <button class="btn btn-primary" onclick="postJob()">Post Job</button>
+                    <button class="btn btn-outline" onclick="autoGenerateDesc()">⚡ Auto-Generate Description</button>
+                </div>
+                <div id="gen-output" style="margin-top:14px;"></div>
+            </div>
+        </div>
+
+        <!-- My Jobs -->
+        <div id="page-my-jobs" class="tab-content">
+            <div class="page-header">
+                <h1>My Job Postings</h1>
+                <p>All jobs you have posted on CareerConnect</p>
+            </div>
+            <div class="card">
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>Job Title</th><th>Type</th><th>Location</th><th>Min. Experience</th><th>Status</th><th>Posted On</th><th>Action</th></tr>
+                        </thead>
+                        <tbody id="my-jobs-table">
+                            <tr><td colspan="7" style="color:#aaa;text-align:center;padding:25px;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Applicants -->
+        <div id="page-applicants" class="tab-content">
+            <div class="page-header">
+                <h1>Applicants</h1>
+                <p>Select a job to view all candidates who applied. They are ranked by compatibility score.</p>
+            </div>
+            <div class="form-group" style="max-width:340px;margin-bottom:20px;">
+                <label>Select a Job</label>
+                <select id="job-dropdown" onchange="loadApplicants()">
+                    <option value="">-- Choose a job --</option>
+                </select>
+            </div>
+            <div class="card">
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>Name</th><th>Skills</th><th>Experience</th><th>Education</th><th>Compatibility</th><th>Score</th><th>Status</th><th>Action</th></tr>
+                        </thead>
+                        <tbody id="applicants-table">
+                            <tr><td colspan="8"><div class="empty-state"><div class="icon">👆</div><p>Select a job above to view applicants</p></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Smart Tools -->
+        <div id="page-tools" class="tab-content">
+            <div class="page-header">
+                <h1>Smart Tools</h1>
+                <p>Auto-generate job descriptions and candidate summaries</p>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:22px;">
+
+                <div class="card">
+                    <div class="card-title">📝 Job Description Generator</div>
+                    <div class="form-group"><label>Job Title</label><input type="text" id="t-title" placeholder="Python Developer"></div>
+                    <div class="form-group"><label>Required Skills</label><input type="text" id="t-skills" placeholder="Python, Flask, MySQL"></div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Experience (yrs)</label><input type="number" id="t-exp" value="2"></div>
+                        <div class="form-group"><label>Job Type</label>
+                            <select id="t-type"><option>Full-time</option><option>Remote</option><option>Internship</option></select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Salary</label><input type="text" id="t-salary" placeholder="5-8 LPA"></div>
+                        <div class="form-group"><label>Location</label><input type="text" id="t-loc" placeholder="Hyderabad"></div>
+                    </div>
+                    <button class="btn btn-primary" id="jd-btn" onclick="runJobDescGen()">Generate Description</button>
+                    <div id="jd-result"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">👤 Candidate Summary Generator</div>
+                    <div class="form-group"><label>Candidate Name</label><input type="text" id="c-name" placeholder="Ravi Kumar"></div>
+                    <div class="form-group"><label>Skills</label><input type="text" id="c-skills" placeholder="Python, SQL, React"></div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Experience (yrs)</label><input type="number" id="c-exp" value="2"></div>
+                        <div class="form-group"><label>Education</label>
+                            <select id="c-edu"><option>High School</option><option selected>Bachelor's</option><option>Master's</option><option>PhD</option></select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Applied for Role</label><input type="text" id="c-role" placeholder="Data Analyst"></div>
+                        <div class="form-group"><label>Compatibility</label>
+                            <select id="c-match"><option>Strong Match</option><option selected>Moderate Match</option><option>Weak Match</option></select>
+                        </div>
+                    </div>
+                    <div class="form-group"><label>Score (%)</label><input type="number" id="c-score" value="72" min="0" max="100"></div>
+                    <button class="btn btn-primary" id="cs-btn" onclick="runCandidateSummary()">Generate Summary</button>
+                    <div id="cs-result"></div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Candidate Detail Modal -->
+<div class="modal-overlay" id="cand-modal">
+    <div class="modal-box">
+        <div class="modal-head">
+            <h3>Candidate Details</h3>
+            <button class="modal-close" onclick="document.getElementById('cand-modal').classList.remove('open')">✕</button>
+        </div>
+        <div id="cand-detail"></div>
+    </div>
+</div>
+
+<script src="/js/utils.js"></script>
+<script>
+var PAGES = ["overview","post-job","my-jobs","applicants","tools"];
+var user = null;
+var myJobs = [];
+var currentApps = [];
+
+window.onload = function() {
+    user = requireLogin("recruiter");
+    if (!user) return;
+    document.getElementById("sidebar-name").textContent = user.name;
+    loadOverview();
+    loadMyJobs();
+};
+
+// ── Overview ─────────────────────────────────────────────────────────
+async function loadOverview() {
+    try {
+        var s = await api("/recruiter/dashboard/" + user.id);
+        document.getElementById("s-jobs").textContent   = s.total_jobs;
+        document.getElementById("s-apps").textContent   = s.total_applications;
+        document.getElementById("s-strong").textContent = s.strong_matches;
+        loadAllRecentApps();
+    } catch(e) { console.log(e); }
+}
+
+async function loadAllRecentApps() {
+    try {
+        // Use the new dedicated endpoint that gets ALL applications across ALL recruiter jobs
+        var all = await api("/recruiter/recent-applications/" + user.id);
+        var tb = document.getElementById("recent-table");
+        if (!all.length) {
+            tb.innerHTML = '<tr><td colspan="6"><div class="empty-state"><p>No applications yet.</p></div></td></tr>';
+            return;
+        }
+        tb.innerHTML = all.map(function(a) {
+            return '<tr>' +
+                '<td><strong>' + a.name + '</strong><br><small>' + a.email + '</small></td>' +
+                '<td>' + a.job_title + '</td>' +
+                '<td>' + matchBadge(a.match_label) + '</td>' +
+                '<td>' + (a.match_score||0) + '%' + scoreBar(a.match_score||0) + '</td>' +
+                '<td>' + statusBadge(a.status) + '</td>' +
+                '<td>' + statusSelect(a.id, a.status, true) + '</td>' +
+            '</tr>';
+        }).join("");
+    } catch(e) { console.log(e); }
+}
+
+// ── Post Job ──────────────────────────────────────────────────────────
+async function postJob() {
+    var title = document.getElementById("j-title").value.trim();
+    if (!title) { showAlert("post-alert","Job title is required","error"); return; }
+    try {
+        await api("/jobs","POST",{
+            recruiter_id: user.id,
+            title: title,
+            company: user.company || "My Company",
+            description: document.getElementById("j-desc").value,
+            skills:   document.getElementById("j-skills").value,
+            experience_required: parseInt(document.getElementById("j-exp").value)||0,
+            salary:   document.getElementById("j-salary").value,
+            location: document.getElementById("j-location").value,
+            job_type: document.getElementById("j-type").value
+        });
+        showAlert("post-alert","Job posted successfully!","success");
+        ["j-title","j-skills","j-salary","j-location","j-desc"].forEach(function(id){ document.getElementById(id).value=""; });
+        loadMyJobs(); loadOverview();
+    } catch(e) { showAlert("post-alert",e.message,"error"); }
+}
+
+async function autoGenerateDesc() {
+    var out = document.getElementById("gen-output");
+    out.innerHTML = '<p style="color:#888;">Generating...</p>';
+    try {
+        var res = await api("/genai/job-description","POST",{
+            title:    document.getElementById("j-title").value || "Software Developer",
+            skills:   document.getElementById("j-skills").value || "Python",
+            experience: document.getElementById("j-exp").value,
+            salary:   document.getElementById("j-salary").value,
+            location: document.getElementById("j-location").value,
+            job_type: document.getElementById("j-type").value
+        });
+        document.getElementById("j-desc").value = res.description;
+        out.innerHTML = '<div class="alert alert-success">Description generated and placed above. Review it before posting.</div>';
+    } catch(e) { out.innerHTML = '<div class="alert alert-error">' + e.message + '</div>'; }
+}
+
+// ── My Jobs ───────────────────────────────────────────────────────────
+async function loadMyJobs() {
+    try {
+        myJobs = await api("/jobs/recruiter/" + user.id);
+        var sel = document.getElementById("job-dropdown");
+        sel.innerHTML = '<option value="">-- Choose a job --</option>';
+        myJobs.forEach(function(j){ sel.innerHTML += '<option value="'+j.id+'">'+j.title+'</option>'; });
+        var tb = document.getElementById("my-jobs-table");
+        if (!myJobs.length) { tb.innerHTML = '<tr><td colspan="7"><div class="empty-state"><p>No jobs posted yet.</p></div></td></tr>'; return; }
+        tb.innerHTML = myJobs.map(function(j) {
+            return '<tr>' +
+                '<td><strong>' + j.title + '</strong></td>' +
+                '<td>' + j.job_type + '</td>' +
+                '<td>' + (j.location||"Remote") + '</td>' +
+                '<td>' + j.experience_required + '+ yrs</td>' +
+                '<td>' + statusBadge(j.status) + '</td>' +
+                '<td>' + fmtDate(j.created_at) + '</td>' +
+                '<td><button class="btn btn-outline btn-sm" onclick="goToApplicants('+j.id+')">View Applicants</button></td>' +
+            '</tr>';
+        }).join("");
+    } catch(e) { console.log(e); }
+}
+
+function goToApplicants(jid) {
+    switchTab(PAGES,"applicants");
+    document.getElementById("job-dropdown").value = jid;
+    loadApplicants();
+}
+
+// ── Applicants ────────────────────────────────────────────────────────
+async function loadApplicants() {
+    var jid = document.getElementById("job-dropdown").value;
+    var tb  = document.getElementById("applicants-table");
+    if (!jid) { tb.innerHTML = '<tr><td colspan="8"><div class="empty-state"><div class="icon">👆</div><p>Select a job above</p></div></td></tr>'; return; }
+    tb.innerHTML = '<tr><td colspan="8" style="color:#aaa;text-align:center;padding:25px;">Loading applicants...</td></tr>';
+    try {
+        currentApps = await api("/applications/job/" + jid);
+        if (!currentApps.length) { tb.innerHTML = '<tr><td colspan="8"><div class="empty-state"><p>No applicants for this job yet.</p></div></td></tr>'; return; }
+        tb.innerHTML = currentApps.map(function(a, i) {
+            return '<tr>' +
+                '<td><strong>' + a.name + '</strong><br><small>' + a.email + '</small></td>' +
+                '<td style="max-width:160px;"><div style="display:flex;flex-wrap:wrap;gap:4px;">' + skillTags(a.skills) + '</div></td>' +
+                '<td>' + a.experience + ' yrs</td>' +
+                '<td>' + a.education + '</td>' +
+                '<td>' + matchBadge(a.match_label) + '</td>' +
+                '<td>' + (a.match_score||0) + '%' + scoreBar(a.match_score||0) + '</td>' +
+                '<td>' + statusSelect(a.id, a.status, false) + '</td>' +
+                '<td><button class="btn btn-outline btn-sm" onclick="viewCandidate('+i+')">View</button></td>' +
+            '</tr>';
+        }).join("");
+    } catch(e) { console.log(e); }
+}
+
+function statusSelect(appId, current, refreshOverview) {
+    var opts = ["Applied","Shortlisted","Rejected","Hired"];
+    var cb = refreshOverview ? "updateStatusOverview" : "updateStatus";
+    return '<select onchange="' + cb + '('+appId+',this.value)" style="padding:5px 8px;font-size:13px;border:1px solid #ccc;border-radius:4px;">' +
+        opts.map(function(o){ return '<option' + (o===current?" selected":"") + '>' + o + '</option>'; }).join("") +
+    '</select>';
+}
+
+async function updateStatus(appId, status) {
+    try {
+        await api("/applications/" + appId + "/status","PUT",{status:status});
+        showAlert("top-alert","Status updated to: " + status + " — Candidate notified ✓","success");
+    } catch(e) { showAlert("top-alert",e.message,"error"); }
+}
+
+async function updateStatusOverview(appId, status) {
+    await updateStatus(appId, status);
+    // Refresh overview stats
+    loadOverview();
+}
+
+function viewCandidate(idx) {
+    var a = currentApps[idx];
+    var jobName = document.getElementById("job-dropdown").selectedOptions[0].text;
+    document.getElementById("cand-detail").innerHTML =
+        '<table style="width:100%;font-size:14px;margin-bottom:16px;border-collapse:collapse;">' +
+        row("Name", '<strong>' + a.name + '</strong>') +
+        row("Email", a.email) +
+        row("Experience", a.experience + " years") +
+        row("Education", a.education) +
+        row("Compatibility", matchBadge(a.match_label)) +
+        row("Score", (a.match_score||0) + "%" + scoreBar(a.match_score||0)) +
+        row("Resume", a.resume_name
+            ? '<button class="btn btn-outline btn-sm" onclick="downloadResume('+a.candidate_id+',\''+a.resume_name+'\')">📎 Download ' + a.resume_name + '</button>'
+            : '<span style="color:#aaa;">Not uploaded</span>') +
+        '</table>' +
+        '<div style="margin-bottom:14px;"><strong style="font-size:13px;">Skills</strong><div class="tags" style="margin-top:6px;">' + skillTags(a.skills) + '</div></div>' +
+        (a.cover_letter ? '<div style="margin-bottom:16px;"><strong style="font-size:13px;">Cover Letter</strong><p style="background:#f8f9fa;padding:12px;border-radius:6px;font-size:13px;margin-top:6px;line-height:1.6;">' + a.cover_letter + '</p></div>' : '') +
+        '<button class="btn btn-primary" style="width:100%;" onclick="generateSummary('+idx+')">Generate Candidate Summary</button>' +
+        '<div id="modal-summary-out" style="margin-top:14px;"></div>';
+    document.getElementById("cand-modal").classList.add("open");
+}
+
+async function downloadResume(candidateId, fileName) {
+    try {
+        var res = await api("/profile/" + candidateId + "/resume");
+        var byteChars = atob(res.resume_data);
+        var byteArr = new Uint8Array(byteChars.length);
+        for (var i = 0; i < byteChars.length; i++) byteArr[i] = byteChars.charCodeAt(i);
+        var ext = fileName.split('.').pop().toLowerCase();
+        var mtype = ext === 'pdf' ? 'application/pdf' : 'application/octet-stream';
+        var blob = new Blob([byteArr], {type: mtype});
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url; a.download = fileName; a.click();
+        URL.revokeObjectURL(url);
+    } catch(e) { showAlert("top-alert","Could not download resume.","error"); }
+}
+
+function row(label, val) {
+    return '<tr><td style="color:#777;padding:7px 0;width:120px;font-size:13px;">' + label + '</td><td>' + val + '</td></tr>';
+}
+
+async function generateSummary(idx) {
+    var a = currentApps[idx];
+    var jobName = document.getElementById("job-dropdown").selectedOptions[0].text;
+    document.getElementById("modal-summary-out").innerHTML = '<p style="color:#888;">Generating summary...</p>';
+    try {
+        var res = await api("/genai/candidate-summary","POST",{
+            name: a.name, skills: a.skills, experience: a.experience,
+            education: a.education, job_title: jobName,
+            match_score: a.match_score, match_label: a.match_label
+        });
+        document.getElementById("modal-summary-out").innerHTML =
+            '<div class="output-box"><div class="output-box-title">Generated Summary</div>' + res.summary + '</div>';
+    } catch(e) {
+        document.getElementById("modal-summary-out").innerHTML = '<div class="alert alert-error">' + e.message + '</div>';
+    }
+}
+
+// ── Smart Tools ───────────────────────────────────────────────────────
+async function runJobDescGen() {
+    var btn = document.getElementById("jd-btn");
+    btn.disabled = true; btn.textContent = "Generating...";
+    try {
+        var res = await api("/genai/job-description","POST",{
+            title:    document.getElementById("t-title").value,
+            skills:   document.getElementById("t-skills").value,
+            experience: document.getElementById("t-exp").value,
+            salary:   document.getElementById("t-salary").value,
+            location: document.getElementById("t-loc").value,
+            job_type: document.getElementById("t-type").value
+        });
+        document.getElementById("jd-result").innerHTML =
+            '<div class="output-box"><div class="output-box-title">Generated Job Description</div>' + res.description + '</div>';
+    } catch(e) {
+        document.getElementById("jd-result").innerHTML = '<div class="alert alert-error">' + e.message + '</div>';
+    }
+    btn.disabled = false; btn.textContent = "Generate Description";
+}
+
+async function runCandidateSummary() {
+    var btn = document.getElementById("cs-btn");
+    btn.disabled = true; btn.textContent = "Generating...";
+    try {
+        var res = await api("/genai/candidate-summary","POST",{
+            name:      document.getElementById("c-name").value,
+            skills:    document.getElementById("c-skills").value,
+            experience: document.getElementById("c-exp").value,
+            education: document.getElementById("c-edu").value,
+            job_title: document.getElementById("c-role").value,
+            match_label: document.getElementById("c-match").value,
+            match_score: document.getElementById("c-score").value
+        });
+        document.getElementById("cs-result").innerHTML =
+            '<div class="output-box"><div class="output-box-title">Candidate Summary</div>' + res.summary + '</div>';
+    } catch(e) {
+        document.getElementById("cs-result").innerHTML = '<div class="alert alert-error">' + e.message + '</div>';
+    }
+    btn.disabled = false; btn.textContent = "Generate Summary";
+}
+</script>
+
+</body>
+</html>
