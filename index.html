@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CareerConnect - Find Your Next Job</title>
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f4f6fb; color: #333; }
+
+    .navbar {
+      background: #1a73e8;
+      padding: 15px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .navbar .logo { color: white; font-size: 1.5rem; font-weight: 700; letter-spacing: 1px; }
+    .navbar .nav-links a {
+      color: white; text-decoration: none; margin-left: 20px;
+      font-size: 0.95rem; padding: 8px 18px; border-radius: 6px;
+      transition: background 0.2s;
+    }
+    .navbar .nav-links a:hover { background: rgba(255,255,255,0.15); }
+    .navbar .nav-links a.btn-white {
+      background: white; color: #1a73e8; font-weight: 600;
+    }
+    .navbar .nav-links a.btn-white:hover { background: #e8f0fe; }
+
+    .hero {
+      background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
+      color: white;
+      padding: 90px 40px;
+      text-align: center;
+    }
+    .hero h1 { font-size: 2.8rem; font-weight: 700; margin-bottom: 18px; }
+    .hero p { font-size: 1.2rem; opacity: 0.9; margin-bottom: 40px; max-width: 600px; margin-left: auto; margin-right: auto; }
+    .hero-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .hero-buttons a {
+      padding: 14px 36px; border-radius: 8px; font-size: 1rem;
+      font-weight: 600; text-decoration: none; transition: all 0.2s;
+    }
+    .btn-primary { background: white; color: #1a73e8; }
+    .btn-primary:hover { background: #e8f0fe; transform: translateY(-2px); }
+    .btn-outline { background: transparent; color: white; border: 2px solid white; }
+    .btn-outline:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
+
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 60px;
+      padding: 50px 40px;
+      background: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .stat-item { text-align: center; }
+    .stat-item .number { font-size: 2rem; font-weight: 700; color: #1a73e8; }
+    .stat-item .label { font-size: 0.9rem; color: #666; margin-top: 4px; }
+
+    .features {
+      padding: 70px 40px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .features h2 { text-align: center; font-size: 2rem; margin-bottom: 50px; color: #1a1a2e; }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 28px;
+    }
+    .feature-card {
+      background: white;
+      border-radius: 12px;
+      padding: 32px 28px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      text-align: center;
+      transition: transform 0.2s;
+    }
+    .feature-card:hover { transform: translateY(-4px); }
+    .feature-card .icon { font-size: 2.5rem; margin-bottom: 16px; }
+    .feature-card h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 10px; color: #1a1a2e; }
+    .feature-card p { font-size: 0.9rem; color: #666; line-height: 1.6; }
+
+    .cta {
+      background: #1a73e8;
+      color: white;
+      text-align: center;
+      padding: 70px 40px;
+    }
+    .cta h2 { font-size: 2rem; margin-bottom: 16px; }
+    .cta p { font-size: 1.05rem; opacity: 0.9; margin-bottom: 36px; }
+    .cta-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .cta-buttons a {
+      padding: 14px 36px; border-radius: 8px; font-size: 1rem;
+      font-weight: 600; text-decoration: none; transition: all 0.2s;
+    }
+    .btn-white { background: white; color: #1a73e8; }
+    .btn-white:hover { background: #e8f0fe; transform: translateY(-2px); }
+    .btn-ghost { background: transparent; color: white; border: 2px solid white; }
+    .btn-ghost:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
+
+    footer {
+      background: #1a1a2e;
+      color: rgba(255,255,255,0.7);
+      text-align: center;
+      padding: 24px;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 2rem; }
+      .stats { gap: 30px; flex-wrap: wrap; }
+      .navbar { padding: 15px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="logo">CareerConnect</div>
+    <div class="nav-links">
+      <a href="/jobs.html">Browse Jobs</a>
+      <a href="/login.html">Login</a>
+      <a href="/register.html" class="btn-white">Get Started</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <h1>Find the Right Job.<br>Find the Right Talent.</h1>
+    <p>CareerConnect makes it easy for candidates to discover opportunities and for companies to find the best people — with smart compatibility scoring built in.</p>
+    <div class="hero-buttons">
+      <a href="/register.html" class="btn-primary">Find a Job</a>
+      <a href="/register.html?role=recruiter" class="btn-outline">Post a Job</a>
+    </div>
+  </section>
+
+  <section class="stats">
+    <div class="stat-item">
+      <div class="number" id="jobCount">--</div>
+      <div class="label">Jobs Available</div>
+    </div>
+    <div class="stat-item">
+      <div class="number">97%</div>
+      <div class="label">Matching Accuracy</div>
+    </div>
+    <div class="stat-item">
+      <div class="number">3</div>
+      <div class="label">Match Levels</div>
+    </div>
+    <div class="stat-item">
+      <div class="number">Free</div>
+      <div class="label">Always</div>
+    </div>
+  </section>
+
+  <section class="features">
+    <h2>Everything you need in one place</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="icon">🔍</div>
+        <h3>Smart Job Matching</h3>
+        <p>Our system evaluates your skills, experience, and education to show how well you match each job — instantly.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">📋</div>
+        <h3>Easy Applications</h3>
+        <p>Apply in seconds with your profile. Track every application and see real-time status updates.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🏢</div>
+        <h3>Recruiter Dashboard</h3>
+        <p>Post jobs, review ranked candidates, and manage the full hiring pipeline from one place.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">✍️</div>
+        <h3>Auto-Generated Descriptions</h3>
+        <p>Recruiters can generate professional job descriptions in one click, saving hours of writing time.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">📊</div>
+        <h3>Candidate Reports</h3>
+        <p>Get a clear summary of any candidate's profile and fit for the role — auto-generated for HR review.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🔔</div>
+        <h3>Real-time Notifications</h3>
+        <p>Candidates get notified when shortlisted or hired. No more checking back every day.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <h2>Ready to get started?</h2>
+    <p>Join CareerConnect today — it's completely free for candidates and recruiters alike.</p>
+    <div class="cta-buttons">
+      <a href="/register.html" class="btn-white">I'm Looking for a Job</a>
+      <a href="/register.html" class="btn-ghost">I'm Hiring</a>
+    </div>
+  </section>
+
+  <footer>
+    <p>CareerConnect &copy; 2026 &mdash; Connecting people with opportunities</p>
+  </footer>
+
+  <script>
+    // Load live job count from API
+    fetch('/api/jobs')
+      .then(r => r.json())
+      .then(jobs => {
+        document.getElementById('jobCount').textContent = jobs.length || '0';
+      })
+      .catch(() => {
+        document.getElementById('jobCount').textContent = '0';
+      });
+  </script>
+</body>
+</html>
