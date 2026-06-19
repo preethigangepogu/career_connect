@@ -1,9 +1,10 @@
-# CareerConnect - Backend Server (Fixed & Enhanced)
+# CareerConnect - Backend Server
 
 from flask import Flask, request, jsonify, send_from_directory
-import sqlite3, hashlib, os, joblib, numpy as np, base64
+import sqlite3, hashlib, os, joblib, numpy as np
 
-app = Flask(__name__, static_folder="../Frontend")
+BASE = os.path.dirname(os.path.abspath(__file__))
+app  = Flask(__name__, static_folder=BASE)
 
 @app.after_request
 def cors(res):
@@ -12,13 +13,13 @@ def cors(res):
     res.headers["Access-Control-Allow-Methods"] = "GET,POST,PUT,DELETE,OPTIONS"
     return res
 
-# ── Load Scoring Model ─────────────────────────────────────────────
-BASE   = os.path.dirname(os.path.abspath(__file__))
-ML_DIR = os.path.join(BASE, "../ML")
+@app.route("/<path:p>", methods=["OPTIONS"])
+def options(p): return jsonify({}), 200
 
-scoring_model  = joblib.load(os.path.join(ML_DIR, "rf_model.pkl"))
-edu_enc        = joblib.load(os.path.join(ML_DIR, "edu_encoder.pkl"))
-result_enc     = joblib.load(os.path.join(ML_DIR, "label_encoder.pkl"))
+# ── Load Scoring Model ─────────────────────────────────────────────
+scoring_model = joblib.load(os.path.join(BASE, "rf_model.pkl"))
+edu_enc       = joblib.load(os.path.join(BASE, "edu_encoder.pkl"))
+result_enc    = joblib.load(os.path.join(BASE, "label_encoder.pkl"))
 
 # ── Database ───────────────────────────────────────────────────────
 DB = os.path.join(BASE, "careerconnect.db")
@@ -80,22 +81,10 @@ def setup():
             created_at   TEXT DEFAULT CURRENT_TIMESTAMP
         );
     """)
-    # Add new columns to existing users table if upgrading
-    try:
-        conn.execute("ALTER TABLE users ADD COLUMN phone TEXT DEFAULT ''")
-    except: pass
-    try:
-        conn.execute("ALTER TABLE users ADD COLUMN bio TEXT DEFAULT ''")
-    except: pass
-    try:
-        conn.execute("ALTER TABLE users ADD COLUMN linkedin TEXT DEFAULT ''")
-    except: pass
-    try:
-        conn.execute("ALTER TABLE users ADD COLUMN resume_name TEXT DEFAULT ''")
-    except: pass
-    try:
-        conn.execute("ALTER TABLE users ADD COLUMN resume_data TEXT DEFAULT ''")
-    except: pass
+    for col in ["phone TEXT DEFAULT ''", "bio TEXT DEFAULT ''", "linkedin TEXT DEFAULT ''",
+                "resume_name TEXT DEFAULT ''", "resume_data TEXT DEFAULT ''"]:
+        try: conn.execute(f"ALTER TABLE users ADD COLUMN {col}")
+        except: pass
     conn.commit(); conn.close()
 
 setup()
@@ -108,45 +97,27 @@ def add_notification(conn, user_id, message):
 # ── Compatibility Scoring ─────────────────────────────────────────
 def score_candidate(candidate, job):
     try:
-        edu = candidate.get("education","Bachelor's")
+        edu = candidate.get("education", "Bachelor's")
         if edu not in list(edu_enc.classes_): edu = "Bachelor's"
         edu_encoded = edu_enc.transform([edu])[0]
-
         c_skills = set(s.strip().lower() for s in str(candidate.get("skills","")).split(",") if s.strip())
         j_skills = set(s.strip().lower() for s in str(job.get("skills","")).split(",") if s.strip())
         skills_score = int(len(c_skills & j_skills) / len(j_skills) * 100) if j_skills else 50
-
         exp     = int(candidate.get("experience") or 0)
         exp_req = int(job.get("experience_required") or 0)
-        relevance  = min(100, int((exp / max(exp_req,1)) * 70) + skills_score // 3)
-        history    = min(100, exp * 8 + 20)
-
-        X   = np.array([[skills_score, exp, edu_encoded, relevance, history]])
-        pred = scoring_model.predict(X)[0]
-        prob = scoring_model.predict_proba(X)[0]
-        conf  = round(float(max(prob)) * 100, 1)
-
-        # FIX: Derive label from skills_score directly so label matches the score
-        # The ML model gives a label, but we override with a human-readable one
-        # that actually aligns with the compatibility percentage shown to users.
-        # skills_score is the primary driver of "fit" for a role.
-        if skills_score >= 70:
-            label = "Strong Match"
-        elif skills_score >= 40:
-            label = "Moderate Match"
-        else:
-            label = "Weak Match"
-
-        # The "score" shown to users is skills_score (actual skill overlap %)
-        # conf is the ML model confidence — we use skills_score as the user-facing score
+        relevance = min(100, int((exp / max(exp_req,1)) * 70) + skills_score // 3)
+        history   = min(100, exp * 8 + 20)
+        X = np.array([[skills_score, exp, edu_encoded, relevance, history]])
+        scoring_model.predict(X)
+        label = "Strong Match" if skills_score >= 70 else ("Moderate Match" if skills_score >= 40 else "Weak Match")
         return label, skills_score, skills_score
     except Exception as e:
         print("Scoring error:", e)
         return "Moderate Match", 60, 50
 
-# ── Description / Summary Generators ──────────────────────────────
+# ── Generators ────────────────────────────────────────────────────
 def build_job_description(title, skills, experience, salary, location, job_type):
-    slist = [s.strip() for s in str(skills).split(",") if s.strip()]
+    slist   = [s.strip() for s in str(skills).split(",") if s.strip()]
     bullets = "\n".join(["  - " + s for s in slist[:5]])
     return (
         "Job Title: {t}\n"
@@ -169,12 +140,10 @@ def build_job_description(title, skills, experience, salary, location, job_type)
         "  - Flexible working hours\n"
         "  - Health and wellness benefits\n"
         "  - Learning and growth opportunities"
-    ).format(
-        t=title, loc=location or "Hyderabad / Remote",
-        jt=job_type, sal=salary or "Competitive",
-        exp=experience, skills_inline=", ".join(slist[:3]) or "relevant tools",
-        bullets=bullets or "  - Relevant technical skills"
-    )
+    ).format(t=title, loc=location or "Hyderabad / Remote", jt=job_type,
+             sal=salary or "Competitive", exp=experience,
+             skills_inline=", ".join(slist[:3]) or "relevant tools",
+             bullets=bullets or "  - Relevant technical skills")
 
 def build_candidate_summary(name, skills, experience, education, job_title, match_score, match_label):
     slist = [s.strip() for s in str(skills or "").split(",") if s.strip()]
@@ -194,27 +163,20 @@ def build_candidate_summary(name, skills, experience, education, job_title, matc
     return (
         "Candidate Summary Report\n"
         "==========================================\n"
-        "Name        : {name}\n"
-        "Education   : {edu}\n"
-        "Experience  : {exp} year(s)\n"
-        "Role Applied: {role}\n"
-        "Result      : {label} ({score}%)\n\n"
-        "Summary:\n"
-        "{name} is a {level} professional with {exp} year(s) of experience. "
+        "Name        : {name}\nEducation   : {edu}\nExperience  : {exp} year(s)\n"
+        "Role Applied: {role}\nResult      : {label} ({score}%)\n\n"
+        "Summary:\n{name} is a {level} professional with {exp} year(s) of experience. "
         "Their key strengths include {top}. Based on the compatibility evaluation, "
         "this candidate {note}.\n\n"
         "Skills Listed:\n{skills_text}\n\n"
         "Recommendation:\n{action}\n"
         "==========================================\n"
         "Generated by CareerConnect"
-    ).format(
-        name=name, edu=education, exp=exp,
-        role=job_title, label=match_label, score=match_score,
-        level=level, top=top, note=note,
-        skills_text=skills_text, action=action
-    )
+    ).format(name=name, edu=education, exp=exp, role=job_title, label=match_label,
+             score=match_score, level=level, top=top, note=note,
+             skills_text=skills_text, action=action)
 
-# ── Routes: Auth ──────────────────────────────────────────────────
+# ── Auth ──────────────────────────────────────────────────────────
 @app.route("/api/register", methods=["POST"])
 def register():
     d = request.json
@@ -236,20 +198,21 @@ def register():
 def login():
     d    = request.json
     conn = db()
-    u    = conn.execute("SELECT * FROM users WHERE email=? AND password=?", (d.get("email"), hpw(d.get("password","")))).fetchone()
+    u    = conn.execute("SELECT * FROM users WHERE email=? AND password=?",
+                        (d.get("email"), hpw(d.get("password","")))).fetchone()
     conn.close()
     if not u: return jsonify({"error": "Incorrect email or password"}), 401
     return jsonify({"id":u["id"],"name":u["name"],"email":u["email"],"role":u["role"],
                     "company":u["company"],"skills":u["skills"],"experience":u["experience"],
-                    "education":u["education"],"phone":u["phone"],"bio":u["bio"],"linkedin":u["linkedin"],
-                    "resume_name":u["resume_name"]})
+                    "education":u["education"],"phone":u["phone"],"bio":u["bio"],
+                    "linkedin":u["linkedin"],"resume_name":u["resume_name"]})
 
 @app.route("/api/profile/<int:uid>", methods=["GET"])
 def get_profile(uid):
     conn = db()
     u = conn.execute("SELECT id,name,email,role,company,skills,experience,education,phone,bio,linkedin,resume_name FROM users WHERE id=?", (uid,)).fetchone()
     conn.close()
-    return (jsonify(dict(u)) if u else (jsonify({"error":"Not found"}), 404))
+    return jsonify(dict(u)) if u else (jsonify({"error":"Not found"}), 404)
 
 @app.route("/api/profile/<int:uid>", methods=["PUT"])
 def update_profile(uid):
@@ -263,10 +226,9 @@ def update_profile(uid):
 @app.route("/api/profile/<int:uid>/resume", methods=["POST"])
 def upload_resume(uid):
     d = request.json
-    resume_name = d.get("resume_name","")
-    resume_data = d.get("resume_data","")  # base64
     conn = db()
-    conn.execute("UPDATE users SET resume_name=?,resume_data=? WHERE id=?", (resume_name, resume_data, uid))
+    conn.execute("UPDATE users SET resume_name=?,resume_data=? WHERE id=?",
+                 (d.get("resume_name",""), d.get("resume_data",""), uid))
     conn.commit(); conn.close()
     return jsonify({"message":"Resume uploaded"})
 
@@ -275,11 +237,10 @@ def get_resume(uid):
     conn = db()
     u = conn.execute("SELECT resume_name,resume_data FROM users WHERE id=?", (uid,)).fetchone()
     conn.close()
-    if not u or not u["resume_data"]:
-        return jsonify({"error":"No resume"}), 404
+    if not u or not u["resume_data"]: return jsonify({"error":"No resume"}), 404
     return jsonify({"resume_name":u["resume_name"],"resume_data":u["resume_data"]})
 
-# ── Routes: Jobs ──────────────────────────────────────────────────
+# ── Jobs ──────────────────────────────────────────────────────────
 @app.route("/api/jobs", methods=["GET"])
 def get_jobs():
     conn = db()
@@ -299,7 +260,8 @@ def create_job():
     cur = conn.execute(
         "INSERT INTO jobs (recruiter_id,title,company,description,skills,experience_required,salary,location,job_type) VALUES(?,?,?,?,?,?,?,?,?)",
         (d["recruiter_id"],d["title"],d.get("company",""),d.get("description",""),
-         d.get("skills",""),d.get("experience_required",0),d.get("salary",""),d.get("location",""),d.get("job_type","Full-time"))
+         d.get("skills",""),d.get("experience_required",0),d.get("salary",""),
+         d.get("location",""),d.get("job_type","Full-time"))
     )
     conn.commit(); jid = cur.lastrowid; conn.close()
     return jsonify({"message":"Job posted","job_id":jid}), 201
@@ -310,26 +272,20 @@ def recruiter_jobs(rid):
     jobs = conn.execute("SELECT * FROM jobs WHERE recruiter_id=? ORDER BY created_at DESC",(rid,)).fetchall()
     conn.close(); return jsonify([dict(j) for j in jobs])
 
-# ── Routes: Applications ──────────────────────────────────────────
+# ── Applications ──────────────────────────────────────────────────
 @app.route("/api/apply", methods=["POST"])
 def apply():
-    d    = request.json
-    jid  = d["job_id"]
-    cid  = d["candidate_id"]
+    d   = request.json
+    jid = d["job_id"]; cid = d["candidate_id"]
     conn = db()
-
     if conn.execute("SELECT id FROM applications WHERE job_id=? AND candidate_id=?",(jid,cid)).fetchone():
         conn.close(); return jsonify({"error":"You already applied to this job"}), 409
-
     candidate = conn.execute("SELECT * FROM users WHERE id=?",(cid,)).fetchone()
     job       = conn.execute("SELECT * FROM jobs  WHERE id=?",(jid,)).fetchone()
     label, score, _ = score_candidate(dict(candidate), dict(job))
-
     conn.execute("INSERT INTO applications (job_id,candidate_id,cover_letter,match_label,match_score) VALUES(?,?,?,?,?)",
         (jid, cid, d.get("cover_letter",""), label, score))
-
-    # Notify candidate
-    add_notification(conn, cid, f"Your application for '{job['title']}' was submitted successfully! Your match: {label} ({score}%)")
+    add_notification(conn, cid, f"Your application for '{job['title']}' was submitted. Result: {label} ({score}%)")
     conn.commit(); conn.close()
     return jsonify({"message":"Application submitted","match_label":label,"match_score":score}), 201
 
@@ -353,20 +309,15 @@ def job_apps(jid):
 def update_status(aid):
     d = request.json; conn = db()
     conn.execute("UPDATE applications SET status=? WHERE id=?",(d["status"],aid))
-    # Notify the candidate
-    app_row = conn.execute("""SELECT a.candidate_id, j.title FROM applications a 
+    row = conn.execute("""SELECT a.candidate_id, j.title FROM applications a 
         JOIN jobs j ON a.job_id=j.id WHERE a.id=?""",(aid,)).fetchone()
-    if app_row:
-        status = d["status"]
-        if status == "Hired":
-            msg = f"🎉 Congratulations! You have been HIRED for '{app_row['title']}'! Check your email for next steps."
-        elif status == "Rejected":
-            msg = f"Update on your application for '{app_row['title']}': Unfortunately, you were not selected. Keep applying!"
-        elif status == "Shortlisted":
-            msg = f"Great news! You have been SHORTLISTED for '{app_row['title']}'. Expect to hear more soon!"
-        else:
-            msg = f"Your application status for '{app_row['title']}' was updated to: {status}"
-        add_notification(conn, app_row["candidate_id"], msg)
+    if row:
+        s = d["status"]
+        if s == "Hired":      msg = f"Congratulations! You have been HIRED for '{row['title']}'!"
+        elif s == "Rejected": msg = f"Update on '{row['title']}': You were not selected this time. Keep applying!"
+        elif s == "Shortlisted": msg = f"Great news! You have been SHORTLISTED for '{row['title']}'."
+        else: msg = f"Your application for '{row['title']}' status: {s}"
+        add_notification(conn, row["candidate_id"], msg)
     conn.commit(); conn.close()
     return jsonify({"message":"Updated"})
 
@@ -379,29 +330,21 @@ def dashboard(rid):
     conn.close()
     return jsonify({"total_jobs":tj,"total_applications":ta,"strong_matches":sm})
 
-# NEW: Get ALL recent applications across all recruiter jobs
 @app.route("/api/recruiter/recent-applications/<int:rid>", methods=["GET"])
 def recent_apps(rid):
     conn = db()
-    apps = conn.execute("""
-        SELECT a.*, u.name, u.email, j.title as job_title
-        FROM applications a
-        JOIN jobs j ON a.job_id=j.id
+    apps = conn.execute("""SELECT a.*,u.name,u.email,j.title job_title
+        FROM applications a JOIN jobs j ON a.job_id=j.id
         JOIN users u ON a.candidate_id=u.id
-        WHERE j.recruiter_id=?
-        ORDER BY a.applied_at DESC
-        LIMIT 50
-    """, (rid,)).fetchall()
-    conn.close()
-    return jsonify([dict(a) for a in apps])
+        WHERE j.recruiter_id=? ORDER BY a.applied_at DESC LIMIT 50""",(rid,)).fetchall()
+    conn.close(); return jsonify([dict(a) for a in apps])
 
-# ── Routes: Notifications ─────────────────────────────────────────
+# ── Notifications ─────────────────────────────────────────────────
 @app.route("/api/notifications/<int:uid>", methods=["GET"])
 def get_notifications(uid):
     conn = db()
     notifs = conn.execute("SELECT * FROM notifications WHERE user_id=? ORDER BY created_at DESC LIMIT 20",(uid,)).fetchall()
-    conn.close()
-    return jsonify([dict(n) for n in notifs])
+    conn.close(); return jsonify([dict(n) for n in notifs])
 
 @app.route("/api/notifications/<int:uid>/read", methods=["PUT"])
 def mark_read(uid):
@@ -417,16 +360,13 @@ def delete_notification(nid):
     conn.commit(); conn.close()
     return jsonify({"message":"Deleted"})
 
-# ── Routes: Tools ─────────────────────────────────────────────────
+# ── Tools ─────────────────────────────────────────────────────────
 @app.route("/api/genai/job-description", methods=["POST"])
 def gen_desc():
     d = request.json
     try:
-        result = build_job_description(
-            d.get("title","Software Developer"), d.get("skills",""),
-            d.get("experience","1"), d.get("salary",""),
-            d.get("location",""), d.get("job_type","Full-time")
-        )
+        result = build_job_description(d.get("title","Software Developer"), d.get("skills",""),
+            d.get("experience","1"), d.get("salary",""), d.get("location",""), d.get("job_type","Full-time"))
         return jsonify({"description": result})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -435,30 +375,30 @@ def gen_desc():
 def gen_summary():
     d = request.json
     try:
-        result = build_candidate_summary(
-            d.get("name","Candidate"), d.get("skills",""),
+        result = build_candidate_summary(d.get("name","Candidate"), d.get("skills",""),
             d.get("experience",0), d.get("education","Bachelor's"),
-            d.get("job_title","this role"), d.get("match_score",60),
-            d.get("match_label","Moderate Match")
-        )
+            d.get("job_title","this role"), d.get("match_score",60), d.get("match_label","Moderate Match"))
         return jsonify({"summary": result})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# ── Serve Frontend ────────────────────────────────────────────────
+# ── Serve HTML/CSS/JS files (flat repo structure) ─────────────────
 @app.route("/")
-def home(): return send_from_directory("../Frontend","index.html")
+def home():
+    return send_from_directory(BASE, "index.html")
 
-@app.route("/css/<path:f>")
-def css(f): return send_from_directory("../Frontend/css", f)
+@app.route("/style.css")
+def stylesheet():
+    return send_from_directory(BASE, "style.css")
 
-@app.route("/js/<path:f>")
-def js(f):  return send_from_directory("../Frontend/js", f)
+@app.route("/utils.js")
+def utilsjs():
+    return send_from_directory(BASE, "utils.js")
 
-@app.route("/pages/<path:f>")
-def pages(f): return send_from_directory("../Frontend/pages", f)
+@app.route("/<path:filename>")
+def static_files(filename):
+    return send_from_directory(BASE, filename)
 
-import os
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=port, debug=False)
